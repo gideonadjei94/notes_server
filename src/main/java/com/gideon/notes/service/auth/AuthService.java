@@ -2,6 +2,7 @@ package com.gideon.notes.service.auth;
 
 import com.gideon.notes.dto.AuthDto;
 import com.gideon.notes.entity.User;
+import com.gideon.notes.enums.UserDomain;
 import com.gideon.notes.repository.UserRepository;
 import com.gideon.notes.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class AuthService implements AuthServiceInt {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
+                .userRole(UserDomain.USER)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
@@ -79,6 +81,7 @@ public class AuthService implements AuthServiceInt {
 
         return AuthDto.AuthResponse.builder()
                 .token(token)
+                .refresh_token(refreshToken)
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())

@@ -19,20 +19,20 @@ public interface NotesRepository extends JpaRepository<Notes, Long> {
 
     Optional<Notes> findByIdAndUserId(Long id, Long userId);
 
-    @Query("SELECT n FROM Note n WHERE n.user.id = :userId " +
+    @Query("SELECT n FROM Notes n WHERE n.user.id = :userId " +
             "AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(n.content) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Notes> searchNotes(@Param("userId") Long userId,
                            @Param("search") String search,
                            Pageable pageable);
 
-    @Query("SELECT n FROM Note n WHERE n.user.id = :userId " +
+    @Query("SELECT n FROM Notes n WHERE n.user.id = :userId " +
             "AND LOWER(n.tags) LIKE LOWER(CONCAT('%', :tag, '%'))")
     Page<Notes> findByUserIdAndTag(@Param("userId") Long userId,
                                   @Param("tag") String tag,
                                   Pageable pageable);
 
-    @Query("SELECT n FROM Note n WHERE n.user.id = :userId " +
+    @Query("SELECT n FROM Notes n WHERE n.user.id = :userId " +
             "AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(n.content) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "AND LOWER(n.tags) LIKE LOWER(CONCAT('%', :tag, '%'))")
@@ -42,6 +42,6 @@ public interface NotesRepository extends JpaRepository<Notes, Long> {
                                   Pageable pageable);
 
 
-    @Query("SELECT n FROM Note n WHERE n.id = :id AND n.user.id = :userId AND n.deletedAt IS NOT NULL")
+    @Query("SELECT n FROM Notes n WHERE n.id = :id AND n.user.id = :userId AND n.deletedAt IS NOT NULL")
     Optional<Notes> findDeletedNoteByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 }
