@@ -1,0 +1,31 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: notes
+
+  datasource:
+    url: jdbc:h2:mem:notesdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: gideon
+    password: gideon
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+jwt:
+  secret-key: dummySecretKeyForLocalDevOnly_ChangeMe123
+  token_exp: 3600000
+  refresh_token_exp: 604800000
+
+logging:
+  level:
+    com.example.notes: DEBUG
