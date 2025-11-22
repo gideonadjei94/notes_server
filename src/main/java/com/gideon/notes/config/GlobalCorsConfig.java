@@ -14,7 +14,7 @@ public class GlobalCorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5000")
+                        .allowedOrigins("http://localhost:5000", "https://notes-0av3.onrender.com")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(true);

@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 @Table(name = "notes")
-@Where(clause = "deleted_at IS NULL")
 public class Note {
 
     @Id

@@ -64,7 +64,7 @@ public class NoteService implements NoteServiceInt {
 
         Page<Note> notePage;
 
-        // Apply filters
+
         if (search != null && !search.trim().isEmpty() && tag != null && !tag.trim().isEmpty()) {
             notePage = noteRepo.searchNotesWithTag(user.getId(), search.trim(), tag.trim().toLowerCase(), pageable);
         } else if (search != null && !search.trim().isEmpty()) {

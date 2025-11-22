@@ -38,7 +38,6 @@ public class NoteDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Note response")
     public static class NoteResponse {
 
