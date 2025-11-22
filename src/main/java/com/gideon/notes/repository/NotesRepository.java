@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface NotesRepository extends JpaRepository<Note, Long> {
 
-    @Query("SELECT n FROM Note n WHERE n.user.id = :userId AND n.deletedAt IS NULL")
+    @Query("SELECT n FROM Note n WHERE n.user.id = :userId")
     Page<Note> findByUserId(Long userId, Pageable pageable);
 
     Optional<Note> findByIdAndUserId(Long id, Long userId);
