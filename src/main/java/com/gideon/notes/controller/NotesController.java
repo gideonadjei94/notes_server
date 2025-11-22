@@ -1,7 +1,7 @@
 package com.gideon.notes.controller;
 
-import com.gideon.notes.dto.NotesDto;
-import com.gideon.notes.service.notes.NotesServiceInt;
+import com.gideon.notes.dto.NoteDto;
+import com.gideon.notes.service.notes.NoteServiceInt;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/notes")
 @RequiredArgsConstructor
-@Tag(name = "Notes", description = "Note management endpoints")
+@Tag(name = "Note", description = "Note management endpoints")
 @SecurityRequirement(name = "bearerAuth")
 public class NotesController {
 
-    private final NotesServiceInt noteService;
+    private final NoteServiceInt noteService;
 
     @PostMapping
     @Operation(
@@ -37,7 +37,7 @@ public class NotesController {
                             description = "Note created successfully",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotesDto.NoteResponse.class),
+                                    schema = @Schema(implementation = NoteDto.NoteResponse.class),
                                     examples = @ExampleObject(value = """
                                             {
                                               "id": 1,
@@ -64,10 +64,10 @@ public class NotesController {
                     )
             }
     )
-    public ResponseEntity<NotesDto.NoteResponse> createNote(
-            @Valid @RequestBody NotesDto.NoteRequest request,
+    public ResponseEntity<NoteDto.NoteResponse> createNote(
+            @Valid @RequestBody NoteDto.NoteRequest request,
             Authentication authentication) {
-        NotesDto.NoteResponse response = noteService.createNote(authentication.getName(), request);
+        NoteDto.NoteResponse response = noteService.createNote(authentication.getName(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -80,15 +80,15 @@ public class NotesController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Notes retrieved successfully",
+                            description = "Note retrieved successfully",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotesDto.PagedNotesResponse.class)
+                                    schema = @Schema(implementation = NoteDto.PagedNotesResponse.class)
                             )
                     )
             }
     )
-    public ResponseEntity<NotesDto.PagedNotesResponse> getNotes(
+    public ResponseEntity<NoteDto.PagedNotesResponse> getNotes(
             @Parameter(description = "Search query for title/content")
             @RequestParam(required = false) String search,
 
@@ -103,9 +103,8 @@ public class NotesController {
 
             @Parameter(description = "Sort by field (default: updatedAt)")
             @RequestParam(required = false, defaultValue = "updatedAt") String sortBy,
-
             Authentication authentication) {
-        NotesDto.PagedNotesResponse response = noteService.getNotes(
+        NoteDto.PagedNotesResponse response = noteService.getNotes(
                 authentication.getName(), search, tag, page, size, sortBy);
         return ResponseEntity.ok(response);
     }
@@ -122,7 +121,7 @@ public class NotesController {
                             description = "Note found",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotesDto.NoteResponse.class)
+                                    schema = @Schema(implementation = NoteDto.NoteResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -132,10 +131,10 @@ public class NotesController {
                     )
             }
     )
-    public ResponseEntity<NotesDto.NoteResponse> getNoteById(
+    public ResponseEntity<NoteDto.NoteResponse> getNoteById(
             @PathVariable Long id,
             Authentication authentication) {
-        NotesDto.NoteResponse response = noteService.getNoteById(authentication.getName(), id);
+        NoteDto.NoteResponse response = noteService.getNoteById(authentication.getName(), id);
         return ResponseEntity.ok()
                 .eTag(String.valueOf(response.getVersion()))
                 .body(response);
@@ -153,7 +152,7 @@ public class NotesController {
                             description = "Note updated successfully",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotesDto.NoteResponse.class)
+                                    schema = @Schema(implementation = NoteDto.NoteResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -168,9 +167,9 @@ public class NotesController {
                     )
             }
     )
-    public ResponseEntity<NotesDto.NoteResponse> updateNote(
+    public ResponseEntity<NoteDto.NoteResponse> updateNote(
             @PathVariable Long id,
-            @Valid @RequestBody NotesDto.NoteRequest request,
+            @Valid @RequestBody NoteDto.NoteRequest request,
             @Parameter(description = "Expected version for optimistic locking")
             @RequestHeader(value = "If-Match", required = false) String ifMatch,
             Authentication authentication) {
@@ -186,7 +185,7 @@ public class NotesController {
             }
         }
 
-        NotesDto.NoteResponse response = noteService.updateNote(
+        NoteDto.NoteResponse response = noteService.updateNote(
                 authentication.getName(), id, request, version);
         return ResponseEntity.ok()
                 .eTag(String.valueOf(response.getVersion()))
@@ -230,7 +229,7 @@ public class NotesController {
                             description = "Note restored successfully",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = NotesDto.NoteResponse.class)
+                                    schema = @Schema(implementation = NoteDto.NoteResponse.class)
                             )
                     ),
                     @ApiResponse(
@@ -240,10 +239,10 @@ public class NotesController {
                     )
             }
     )
-    public ResponseEntity<NotesDto.NoteResponse> restoreNote(
+    public ResponseEntity<NoteDto.NoteResponse> restoreNote(
             @PathVariable Long id,
             Authentication authentication) {
-        NotesDto.NoteResponse response = noteService.restoreNote(authentication.getName(), id);
+        NoteDto.NoteResponse response = noteService.restoreNote(authentication.getName(), id);
         return ResponseEntity.ok(response);
     }
 }

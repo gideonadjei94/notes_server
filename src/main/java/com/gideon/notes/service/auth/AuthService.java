@@ -3,8 +3,10 @@ package com.gideon.notes.service.auth;
 import com.gideon.notes.dto.AuthDto;
 import com.gideon.notes.entity.User;
 import com.gideon.notes.enums.UserDomain;
+import com.gideon.notes.exception.EntityNotFoundException;
 import com.gideon.notes.repository.UserRepository;
 import com.gideon.notes.security.JwtService;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -55,7 +57,7 @@ public class AuthService implements AuthServiceInt {
                 .token(token)
                 .refresh_token(refreshToken)
                 .userId(user.getId())
-                .username(user.getUsername())
+                .username(user.getRealUserName())
                 .email(user.getEmail())
                 .build();
     }
@@ -66,16 +68,16 @@ public class AuthService implements AuthServiceInt {
     public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
 
 
-        User user = userRepo.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtService.generateJwtToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
@@ -83,8 +85,45 @@ public class AuthService implements AuthServiceInt {
                 .token(token)
                 .refresh_token(refreshToken)
                 .userId(user.getId())
-                .username(user.getUsername())
+                .username(user.getRealUserName())
                 .email(user.getEmail())
                 .build();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthDto.AuthResponse refreshToken(AuthDto.RefreshTokenRequest request) {
+        try {
+            // Extract email from refresh token
+            String email = jwtService.extractUsername(request.getRefreshToken());
+
+            // Load user details
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+            // Validate refresh token
+            if (!jwtService.isTokenValid(request.getRefreshToken(), userDetails)) {
+                throw new IllegalArgumentException("Invalid or expired refresh token");
+            }
+
+            // Get user from database
+            User user = userRepo.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // Generate new tokens
+            String newAccessToken = jwtService.generateJwtToken(userDetails);
+            String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+
+            return AuthDto.AuthResponse.builder()
+                    .token(newAccessToken)
+                    .refresh_token(newRefreshToken)
+                    .userId(user.getId())
+                    .username(user.getRealUserName())
+                    .email(user.getEmail())
+                    .build();
+
+        } catch (JwtException e) {
+            throw new IllegalArgumentException("Invalid refresh token: " + e.getMessage());
+        }
     }
 }

@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "Notes Api Docs",
-                description = "Backend Api docs for Notes",
+                title = "Note Api Docs",
+                description = "Backend Api docs for Note",
                 version = "1.0"
         ),
         servers = {

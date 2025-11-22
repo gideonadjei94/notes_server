@@ -3,6 +3,7 @@ package com.gideon.notes.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @Builder
 @Table(name = "notes")
 @Where(clause = "deleted_at IS NULL")
-public class Notes {
+public class Note {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +42,7 @@ public class Notes {
 
     @Version
     @Column(nullable = false)
-    private Long version = 0L;
+    private Long version;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

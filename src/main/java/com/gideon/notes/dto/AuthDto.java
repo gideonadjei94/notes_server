@@ -42,15 +42,27 @@ public class AuthDto {
     @Schema(description = "User login request")
     public static class LoginRequest {
 
-        @NotBlank(message = "Username is required")
-        @Schema(description = "Username", example = "johndoe")
-        private String username;
+        @NotBlank(message = "Email is required")
+        @Email(message = "Please enter a valid email")
+        @Schema(description = "email", example = "johndoe@gmail.com")
+        private String email;
 
         @NotBlank(message = "Password is required")
         @Schema(description = "Password", example = "password123")
         private String password;
     }
 
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "Refresh token request")
+    public static class RefreshTokenRequest {
+        @NotBlank(message = "Refresh token is required")
+        @Schema(description = "Refresh token", example = "eyJhbGciOiJIUzI1NiJ9...")
+        private String refreshToken;
+    }
 
 
     @Data

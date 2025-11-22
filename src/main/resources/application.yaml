@@ -1,20 +1,30 @@
 server:
-  port: 8082
+  port: ${PORT}
 
 spring:
   application:
     name: notes
 
   datasource:
-    url: jdbc:h2:mem:notesdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:file:./data/notesdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
-    username: gideon
-    password: gideon
+    username: ${DB_USER}
+    password: ${DB_PASS}
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
   flyway:
     enabled: true
@@ -22,10 +32,43 @@ spring:
     baseline-on-migrate: true
 
 jwt:
-  secret-key: dummySecretKeyForLocalDevOnly_ChangeMe123
-  token_exp: 3600000
-  refresh_token_exp: 604800000
+  secret-key: ${JWT_SECRET}
+  token_exp: ${TOKEN_EXP}
+  refresh_token_exp: ${REFRESH_EXP}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /api-docs
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+    disable-swagger-default-url: true
+    title: "Notes API Documentation"
+  show-actuator: true
+
+
+rate-limit:
+  auth:
+    capacity: 5
+    refill: 5
+    duration: 1m
+  api:
+    capacity: 100
+    refill: 100
+    duration: 1m
+  notes-create:
+    capacity: 20
+    refill: 20
+    duration: 1m
+  notes-update:
+    capacity: 30
+    refill: 30
+    duration: 1m
 
 logging:
   level:
-    com.example.notes: DEBUG
+    com.gideon.notes: DEBUG

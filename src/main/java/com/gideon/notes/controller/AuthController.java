@@ -40,11 +40,11 @@ public class AuthController {
                                     schema = @Schema(implementation = AuthDto.AuthResponse.class),
                                     examples = @ExampleObject(value = """
                                             {
-                                              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                                              "type": "Bearer",
                                               "userId": 1,
                                               "username": "johndoe",
-                                              "email": "john@example.com"
+                                              "email": "john@example.com",
+                                              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                                              "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                                             }
                                             """)
                             )
@@ -76,11 +76,11 @@ public class AuthController {
                                     schema = @Schema(implementation = AuthDto.AuthResponse.class),
                                     examples = @ExampleObject(value = """
                                             {
-                                              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                                              "type": "Bearer",
                                               "userId": 1,
                                               "username": "johndoe",
-                                              "email": "john@example.com"
+                                              "email": "john@example.com",
+                                              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                                              "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                                             }
                                             """)
                             )
@@ -94,6 +94,41 @@ public class AuthController {
     )
     public ResponseEntity<AuthDto.AuthResponse> login(@Valid @RequestBody AuthDto.LoginRequest request) {
         AuthDto.AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh access token",
+            description = "Generate new access and refresh tokens using a valid refresh token",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Tokens refreshed successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = AuthDto.AuthResponse.class),
+                                    examples = @ExampleObject(value = """
+                                            {
+                                              "userId": 1,
+                                              "username": "johndoe",
+                                              "email": "john@example.com",
+                                              "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                                              "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                            }
+                                            """)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Invalid or expired refresh token",
+                            content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+                    )
+            }
+    )
+    public ResponseEntity<AuthDto.AuthResponse> refreshToken(@Valid @RequestBody AuthDto.RefreshTokenRequest request) {
+        AuthDto.AuthResponse response = authService.refreshToken(request);
         return ResponseEntity.ok(response);
     }
 }

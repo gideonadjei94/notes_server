@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class NotesDto {
+public class NoteDto {
 
     @Data
     @Builder

@@ -1,8 +1,8 @@
 package com.gideon.notes.service.notes;
 
 
-import com.gideon.notes.dto.NotesDto;
-import com.gideon.notes.entity.Notes;
+import com.gideon.notes.dto.NoteDto;
+import com.gideon.notes.entity.Note;
 import com.gideon.notes.entity.User;
 import com.gideon.notes.exception.EntityNotFoundException;
 import com.gideon.notes.exception.VersionConflictException;
@@ -22,17 +22,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class NotesService implements NotesServiceInt {
+public class NoteService implements NoteServiceInt {
 
     private final NotesRepository noteRepo;
     private final UserRepository userRepo;
 
     @Override
     @Transactional
-    public NotesDto.NoteResponse createNote(String username, NotesDto.NoteRequest request) {
-        User user = getUserByUsername(username);
+    public NoteDto.NoteResponse createNote(String email, NoteDto.NoteRequest request) {
+        User user = getUserByEmail(email);
 
-        Notes note = Notes.builder()
+        Note note = Note.builder()
                 .title(request.getTitle().trim())
                 .content(request.getContent().trim())
                 .user(user)
@@ -47,13 +47,13 @@ public class NotesService implements NotesServiceInt {
 
     @Override
     @Transactional(readOnly = true)
-    public NotesDto.PagedNotesResponse getNotes(String username,
+    public NoteDto.PagedNotesResponse getNotes(String email,
                                                String search,
                                                String tag,
                                                int page,
                                                int size,
                                                String sortBy) {
-        User user = getUserByUsername(username);
+        User user = getUserByEmail(email);
 
         if (sortBy == null || sortBy.trim().isEmpty()) {
             sortBy = "updatedAt";
@@ -62,7 +62,7 @@ public class NotesService implements NotesServiceInt {
         Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Notes> notePage;
+        Page<Note> notePage;
 
         // Apply filters
         if (search != null && !search.trim().isEmpty() && tag != null && !tag.trim().isEmpty()) {
@@ -75,11 +75,11 @@ public class NotesService implements NotesServiceInt {
             notePage = noteRepo.findByUserId(user.getId(), pageable);
         }
 
-        List<NotesDto.NoteResponse> notes = notePage.getContent().stream()
+        List<NoteDto.NoteResponse> notes = notePage.getContent().stream()
                 .map(this::toNoteResponse)
                 .collect(Collectors.toList());
 
-        return NotesDto.PagedNotesResponse.builder()
+        return NoteDto.PagedNotesResponse.builder()
                 .notes(notes)
                 .page(notePage.getNumber())
                 .size(notePage.getSize())
@@ -92,9 +92,9 @@ public class NotesService implements NotesServiceInt {
 
     @Override
     @Transactional(readOnly = true)
-    public NotesDto.NoteResponse getNoteById(String username, Long id) {
-        User user = getUserByUsername(username);
-        Notes note = noteRepo.findByIdAndUserId(id, user.getId())
+    public NoteDto.NoteResponse getNoteById(String email, Long id) {
+        User user = getUserByEmail(email);
+        Note note = noteRepo.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Note not found with id: " + id));
 
         return toNoteResponse(note);
@@ -103,9 +103,9 @@ public class NotesService implements NotesServiceInt {
 
     @Override
     @Transactional
-    public NotesDto.NoteResponse updateNote(String username, Long id, NotesDto.NoteRequest request, Long version) {
-        User user = getUserByUsername(username);
-        Notes note = noteRepo.findByIdAndUserId(id, user.getId())
+    public NoteDto.NoteResponse updateNote(String email, Long id, NoteDto.NoteRequest request, Long version) {
+        User user = getUserByEmail(email);
+        Note note = noteRepo.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Note not found with id: " + id));
 
         if (version != null && !note.getVersion().equals(version)) {
@@ -128,9 +128,9 @@ public class NotesService implements NotesServiceInt {
 
     @Override
     @Transactional
-    public void deleteNote(String username, Long id) {
-        User user = getUserByUsername(username);
-        Notes note = noteRepo.findByIdAndUserId(id, user.getId())
+    public void deleteNote(String email, Long id) {
+        User user = getUserByEmail(email);
+        Note note = noteRepo.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Note not found with id: " + id));
 
         note.softDelete();
@@ -140,11 +140,10 @@ public class NotesService implements NotesServiceInt {
 
     @Override
     @Transactional
-    public NotesDto.NoteResponse restoreNote(String username, Long id) {
-        User user = getUserByUsername(username);
+    public NoteDto.NoteResponse restoreNote(String email, Long id) {
+        User user = getUserByEmail(email);
 
-        Notes note = noteRepo.findById(id)
-                .filter(n -> n.getUser().getId().equals(user.getId()) && n.isDeleted())
+        Note note = noteRepo.findDeletedNoteByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Deleted note not found with id: " + id));
 
         note.restore();
@@ -154,15 +153,15 @@ public class NotesService implements NotesServiceInt {
     }
 
 
-    private User getUserByUsername(String username) {
-        return userRepo.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+    private User getUserByEmail(String email) {
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + email));
     }
 
 
 
-    private NotesDto.NoteResponse toNoteResponse(Notes note) {
-        return NotesDto.NoteResponse.builder()
+    private NoteDto.NoteResponse toNoteResponse(Note note) {
+        return NoteDto.NoteResponse.builder()
                 .id(note.getId())
                 .title(note.getTitle())
                 .content(note.getContent())
