@@ -27,6 +27,8 @@ WORKDIR /app
 
 RUN useradd -m -u 1001 appuser
 
+RUN mkdir -p /app/data && chown -R appuser:appuser /app/data
+
 COPY --from=builder --chown=appuser:appuser /app/target/extracted/dependencies/ ./
 COPY --from=builder --chown=appuser:appuser /app/target/extracted/spring-boot-loader/ ./
 COPY --from=builder --chown=appuser:appuser /app/target/extracted/snapshot-dependencies/ ./
