@@ -22,11 +22,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class NotesService {
+public class NotesService implements NotesServiceInt {
 
     private final NotesRepository noteRepo;
     private final UserRepository userRepo;
 
+    @Override
     @Transactional
     public NotesDto.NoteResponse createNote(String username, NotesDto.NoteRequest request) {
         User user = getUserByUsername(username);
@@ -44,6 +45,7 @@ public class NotesService {
     }
 
 
+    @Override
     @Transactional(readOnly = true)
     public NotesDto.PagedNotesResponse getNotes(String username,
                                                String search,
@@ -88,6 +90,7 @@ public class NotesService {
     }
 
 
+    @Override
     @Transactional(readOnly = true)
     public NotesDto.NoteResponse getNoteById(String username, Long id) {
         User user = getUserByUsername(username);
@@ -98,6 +101,7 @@ public class NotesService {
     }
 
 
+    @Override
     @Transactional
     public NotesDto.NoteResponse updateNote(String username, Long id, NotesDto.NoteRequest request, Long version) {
         User user = getUserByUsername(username);
@@ -122,6 +126,7 @@ public class NotesService {
     }
 
 
+    @Override
     @Transactional
     public void deleteNote(String username, Long id) {
         User user = getUserByUsername(username);
@@ -133,6 +138,7 @@ public class NotesService {
     }
 
 
+    @Override
     @Transactional
     public NotesDto.NoteResponse restoreNote(String username, Long id) {
         User user = getUserByUsername(username);

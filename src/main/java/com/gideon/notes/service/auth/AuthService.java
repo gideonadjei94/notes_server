@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements AuthServiceInt {
 
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
@@ -23,6 +23,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
+    @Override
     @Transactional
     public AuthDto.AuthResponse signup(AuthDto.SignupRequest request) {
         if (userRepo.existsByUsername(request.getUsername())) {
@@ -57,6 +58,8 @@ public class AuthService {
                 .build();
     }
 
+
+    @Override
     @Transactional(readOnly = true)
     public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
         authenticationManager.authenticate(

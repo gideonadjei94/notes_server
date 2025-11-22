@@ -2,6 +2,7 @@ package com.gideon.notes.controller;
 
 import com.gideon.notes.dto.AuthDto;
 import com.gideon.notes.service.auth.AuthService;
+import com.gideon.notes.service.auth.AuthServiceInt;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
