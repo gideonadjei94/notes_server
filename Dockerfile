@@ -2,11 +2,10 @@
 # Build Stage
 FROM eclipse-temurin:21-jdk-jammy AS builder
 
-
 WORKDIR /app
 
-COPY mvnw pom.xml ./
 COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
 
 RUN chmod +x mvnw
 
@@ -17,6 +16,7 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
+
 
 
 
@@ -38,4 +38,4 @@ USER appuser
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "org.springframework.boot.loader.launch.JarLauncher"]
