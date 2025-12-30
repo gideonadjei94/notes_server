@@ -1,5 +1,6 @@
 package com.gideon.notes.security;
 
+import com.gideon.notes.config.JwtProperties;
 import com.gideon.notes.entity.User;
 import com.gideon.notes.exception.EntityNotFoundException;
 import com.gideon.notes.exception.ExpiredAuthTokenException;
@@ -24,15 +25,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${jwt.secret-key}")
-    private String SECRET_KEY;
-
-    @Value("${jwt.token_exp}")
-    private long jwtExpiration;
-
-    @Value("${jwt.refresh_token_exp}")
-    private long refreshTokenExpiration;
-
+    private final JwtProperties jwtProperties;
     private final UserRepository userRepo;
 
     public String extractUsername(String jwtToken) {
@@ -55,18 +48,18 @@ public class JwtService {
 
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
 
     public String generateJwtToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, jwtExpiration);
+        return generateToken(new HashMap<>(), userDetails, jwtProperties.getTokenExp());
     }
 
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, refreshTokenExpiration);
+        return generateToken(new HashMap<>(), userDetails, jwtProperties.getRefreshTokenExp());
     }
 
 
